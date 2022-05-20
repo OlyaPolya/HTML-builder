@@ -3,21 +3,6 @@ const path = require('path');
 const copyFilePath = path.resolve(__dirname, 'files-copy');
 const originalFilePath = path.resolve(__dirname, 'files');
 
-//async function deleteOldcopyFilePath() {
-// const data = await fs.promises.readdir(copyFilePath);
-// data.forEach((file) => {
-//   const filesIncopyFilePath = path.resolve(__dirname, 'files-copy', `${file.toString()}`);
-//   fs.unlink(filesIncopyFilePath, function (err) {
-//     if (err) {
-//       console.log(err);
-//     }
-//   });
-// });
-// fs.rmdir(copyFilePath, (err) => {
-//   if (err) throw err;
-// });
-//}
-
 async function copyDir() {
   await fs.promises.mkdir(copyFilePath, { recursive: true }, (err) => {
     if (err) throw err;
@@ -47,7 +32,7 @@ async function copyDir() {
       });
     }
   });
-  
+
   console.log('Папка files-copy готова. Содержимое папки files скопировано в папку files-copy ');
 }
 
