@@ -13,7 +13,7 @@ function createFile() {
 
 function create() {
   createFile();
-  stdout.write('Пожалуйста, введите текст?\n');
+  stdout.write('Пожалуйста, введите текст\n');
   stdin.on('data', (data) => {
     if (data.toString().trim() === 'exit') {
       console.log('Вы нажали exit. Всего доброго!');
