@@ -3,41 +3,43 @@ const path = require('path');
 const copyFilePath = path.resolve(__dirname, 'files-copy');
 const originalFilePath = path.resolve(__dirname, 'files');
 
-async function copyDir() {
+async function cleanAndFillAssetsFolder(originalFilePath, copyFilePath) {
+  await fs.promises.rm(copyFilePath, { force: true, recursive: true }, (err) => {
+    if (err) throw err;
+  });
+
+  copyDir(originalFilePath, copyFilePath);
+}
+
+async function copyDir(originalFilePath, copyFilePath) {
   await fs.promises.mkdir(copyFilePath, { recursive: true }, (err) => {
     if (err) throw err;
   });
 
-  const filesInOriginalPath = await fs.promises.readdir(originalFilePath);
-
-  filesInOriginalPath.forEach((file) => {
-    fs.writeFile(path.join(copyFilePath, `${file.toString()}`), '', (err) => {
-      if (err) throw err;
-    });
-    fs.readFile(path.join(originalFilePath, `${file.toString()}`), 'utf-8', (err, data) => {
-      if (err) throw err;
-      fs.appendFile(path.join(copyFilePath, `${file.toString()}`), `${data}`, (err) => {
-        if (err) throw err;
-      });
-    });
+  const filesInOriginalPath = await fs.promises.readdir(originalFilePath, (err) => {
+    if (err) throw err;
   });
 
-  const filesInCopyPath = await fs.promises.readdir(copyFilePath);
+  for (let file of filesInOriginalPath) {
+    const folder = path.join(originalFilePath, file.toString());
+    const folderToCopy = path.join(copyFilePath, file.toString());
+    const isDir = await fs.promises.stat(folder);
 
-  filesInCopyPath.forEach((file) => {
-    if (!filesInOriginalPath.includes(file)) {
-      const pathOfNonexistentFile = path.resolve(__dirname, 'files-copy', `${file}`);
-      fs.unlink(pathOfNonexistentFile, function (err) {
-        if (err) throw err;
-      });
+    if (isDir.isDirectory()) {
+      await copyDir(folder, folderToCopy);
+    } else {
+      await fs.promises.copyFile(folder, folderToCopy);
     }
-  });
+  }
+}
 
-  console.log('Папка files-copy готова. Содержимое папки files скопировано в папку files-copy ');
+async function showFinishMessage() {
+  console.log('Копирование завершено');
 }
 
 try {
-  copyDir();
+  cleanAndFillAssetsFolder(originalFilePath, copyFilePath);
+  showFinishMessage();
 } catch (err) {
   console.error(err);
 }
